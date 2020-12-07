@@ -1,0 +1,18 @@
+import os
+def nfs():
+    os.system("ssh {} yum install nfs-utils".format(remoteIp))
+    storagepath=input("Enter path of network storage device : ")
+    os.system("ssh {} mkdir {}".format(remoteIp,storagepath))
+    os.system("ssh {} vim /etc/exports".format(remoteIp))
+    os.system("ssh {} systemctl restart nfs-server".format(remoteIp))
+    os.system("ssh {} systemctl enable nfs-server".format(remoteIp))
+    print("Service nfs-server successfully restart and enable...")
+    os.system("ssh {} exportfs -v".format(remoteIp))
+    print("Now configuring the NFS at client side...")
+    server_ip=input("Enter Server IP address : ")
+    client_ip=input("Enter Client IP address : ")
+    mountpath=input("Enter the path of directory that u want to mount on storage device : ")
+    os.system("ssh {} mkdir {1}".format(client_ip,mountpath))
+    os.system("ssh {} mount {}:{} {}".format(client_ip,server_ip,storagepath,mountpath))
+    os.system("ssh {} df -hT".format(client_ip))
+    print("Successfully mounted")

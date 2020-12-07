@@ -1,0 +1,27 @@
+import os
+def lvm():
+    os.system("ssh {} lsblk".format(remoteIp))
+    i = int(input("How many partition you want to join : "))
+    for x in range(i):
+        hd=input("enter path of partition : ")
+        os.system("ssh {} pvcreate {}".format(remoteIp,hd))
+    os.system("ssh {} pvdisplay {}".format(remoteIp,hd))
+    vg_name = input("enter VG name : ")
+    pv_number = int(input("Enter number of PVs contribute to vg : "))
+    pv_name = input("enter path of pv : ")
+    os.system("ssh {} vgcreate {} {}".format(remoteIp,vg_name,pv_name))
+    for y in range(pv_number-1):
+        newpv=input("Enter path of another pv : ")
+        os.system("ssh {} vgextend {} {}".format(remoteIp,vg_name,newpv))
+    os.system("ssh {} vgdisplay {}".format(remoteIp,vg_name))
+    print("Now creating Logical Volume")
+    lv_name=input("Enter the name of logical volume : ")
+    size=input("Enter the size of logical volume : ")
+    os.system("ssh {} lvcreate --size {} --name {} {}".format(remoteIp,size,lv_name,vg_name))
+    lv_type=input("Enter the format type : ")
+    os.system("ssh {} mkfs.{} /dev/{}/{}".format(remoteIp,lv_type,vg_name,lv_name))
+    mt=input("Enter path of mount point : ")
+    os.system("ssh {} mkdir {}".format(remoteIp,mt))
+    os.system("ssh {} mount /dev/{}/{} {}".format(remoteIp,vg_name,lv_name,mt))
+    os.system("df -hT")
+    print("Logical volume successfully created and mounted!!!")

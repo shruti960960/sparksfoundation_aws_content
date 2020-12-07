@@ -1,0 +1,26 @@
+import os
+def lvm():
+    i = int(input("How many partition you want to join : "))
+    for x in range(i):
+        hd=input("enter path of partition : ")
+        os.system("pvcreate {}".format(hd))
+    os.system("pvdisplay")
+    vg_name = input("enter VG name : ")
+    pv_number = int(input("Enter number of PVs contribute to vg : "))
+    pv_name = input("enter path of pv : ")
+    os.system("vgcreate {0} {1}".format(vg_name,pv_name))
+    for y in range(pv_number-1):
+        newpv=input("Enter path of another pv : ")
+        os.system("vgextend {} {}".format(vg_name,newpv))
+    os.system("vgdisplay {}".format(vg_name))
+    print("Now creating Logical Volume")
+    lv_name=input("Enter the name of logical volume : ")
+    size=input("Enter the size of logical volume : ")
+    os.system("lvcreate --size {} --name {} {}".format(size,lv_name,vg_name))
+    lv_type=input("Enter the format type : ")
+    os.system("mkfs.{} /dev/{}/{}".format(lv_type,vg_name,lv_name))
+    mt=input("Enter path of mount point : ")
+    os.system("mkdir {}".format(mt))
+    os.system("mount /dev/{}/{} {}".format(vg_name,lv_name,mt))
+    os.system("df -hT")
+    print("Logical volume successfully created and mounted!!!")
